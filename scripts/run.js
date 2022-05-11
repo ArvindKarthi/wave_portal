@@ -1,4 +1,6 @@
 const main = async () => {
+  const [owner, randomPerson] = await hre.ethers.getSigners();
+  /* In order to deploy something to the blockchain, we need to have a wallet address! Hardhat does this for us magically in the background, but here I grabbed the wallet address of contract owner and I also grabbed a random wallet address and called it randomPerson. */
   const waveContractFactory = await hre.ethers.getContractFactory("WavePortal");
   /*This will actually compile our contract and generate the necessary files we need to work with our contract under the artifacts directory*/
   const waveContract = await waveContractFactory.deploy();
@@ -6,6 +8,20 @@ const main = async () => {
   await waveContract.deployed();
   /* We'll wait until our contract is officially deployed to our local blockchain! Our constructor runs when we actually deploy. */
   console.log("Contract deployed to: ", waveContract.address);
+  console.log("Contract deployed by: ", owner.address);
+
+  let waveCount;
+  waveCount = await waveContract.getTotalWaves();
+
+  let waveTxn = await waveContract.wave();
+  await waveTxn.wait();
+
+  waveCount = await waveContract.getTotalWaves();
+
+  waveTxn = await waveContract.connect(randomPerson).wave();
+  await waveTxn.wait();
+
+  waveCount = await waveContract.getTotalWaves();
 };
 
 const runMain = async () => {
